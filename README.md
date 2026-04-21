@@ -6,11 +6,13 @@ This is the official repository for the paper:
 > [Levy Chaves](https://scholar.google.com/citations?user=dDfbSWUAAAAJ), [Chao Zhou](https://scholar.google.com/citations?user=ttO5HpQAAAAJ), [Rebekka Burkholz](https://scholar.google.com/citations?user=vkWBb2wAAAAJ), [Eduardo Valle](https://scholar.google.com/citations?user=lxWPqWAAAAAJ), [Sandra Avila](https://scholar.google.com/citations?user=TbM0rGQAAAAJ)<br>
 > CVPR 2026
 
-Our paper studies model merging under domain shifts. Our method, **SCORE** (Subspace COnflict-Resolving mErging), resolves conflicts between task vectors using SVD-based subspace alignment.
+**TL;DR**: Our paper studies model merging under domain shifts. Our method, **SCORE** (Subspace COnflict-Resolving mErging), resolves conflicts between task vectors using SVD-based subspace alignment.
 
 <p align="center">
 <img style="width:70%;" alt="thumbnail" src="assets/CVPR_Model_Merging_OOD.png">
 </p>
+
+> **Abstract**: Model merging integrates multiple task-specific models into a single consolidated one. Recent research has made progress in improving merging performance for in-distribution or multi-task scenarios, but domain generalization in model merging remains underexplored. We investigate how merging models fine-tuned on distinct domains affects generalization to unseen domains. Through an analysis of parameter competition in the task matrix using singular value decomposition, we show that merging models trained under different distribution shifts induces stronger conflicts between their subspaces compared to traditional multi-task settings. To mitigate this issue, we propose SCORE (Subspace COnflict-Resolving mErging), a method designed to alleviate such singular subspace conflicts. SCORE finds a shared orthogonal basis by computing the principal components of the concatenated leading singular vectors of all models. It then projects each task matrix into the shared basis, pruning off-diagonal components to remove conflicting singular directions. SCORE consistently outperforms, on average, existing model merging approaches in domain generalization settings across a variety of architectures and model scales, demonstrating its effectiveness and scalability.
 
 ## Overview
 
