@@ -8,6 +8,7 @@ from collections import defaultdict
 from multiprocessing import Pool
 
 base_folder = './terra_incognita'
+SPLIT_SEED = 17
 
 # https://github.com/facebookresearch/DomainBed/blob/b93c22a1cfc3b2428398272c1a116c8de1f4139e/domainbed/scripts/download.py#L185
 domains = ["38", "46", "100", "43"]
@@ -16,7 +17,7 @@ domains = ["38", "46", "100", "43"]
 # Manual train/test split
 def manual_split(df, train_ratio=0.8):
     indices = list(df.index)
-    random.shuffle(indices)
+    random.Random(SPLIT_SEED).shuffle(indices)
     split_point = int(len(indices) * train_ratio)
     train_indices = indices[:split_point]
     test_indices = indices[split_point:]

@@ -8,6 +8,7 @@ from torchvision import datasets
 # https://www.hemanthdv.org/officeHomeDataset.html
 officehome_folder = './OfficeHomeDataset'
 domains = ['Art', 'Clipart', 'Product', 'Real World']
+SPLIT_SEED = 17
 
 def process_row(args):
     """Process a single row from the dataset."""
@@ -42,7 +43,11 @@ def process_split(domain):
     train_size = int(0.8 * len(dataset))
     val_size = len(dataset) - train_size
     
-    train, val = torch.utils.data.random_split(dataset, [train_size, val_size])
+    train, val = torch.utils.data.random_split(
+        dataset,
+        [train_size, val_size],
+        generator=torch.Generator().manual_seed(SPLIT_SEED)
+    )
     train_idx, val_idx = train.indices, val.indices
 
     train_file_list = [(dataset.imgs[i][0], 'train') for i in train_idx]

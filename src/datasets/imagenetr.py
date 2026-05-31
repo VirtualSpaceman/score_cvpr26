@@ -9,6 +9,8 @@ from torchvision import datasets
 from torchvision.datasets import ImageFolder
 from torchvision.datasets.utils import download_url
 
+SPLIT_SEED = 17
+
 
 
 class _ImageNetR:
@@ -102,7 +104,11 @@ class _ImageNetR:
             train_size = int(0.8 * len(dataset))
             val_size = len(dataset) - train_size
             
-            train, val = torch.utils.data.random_split(dataset, [train_size, val_size])
+            train, val = torch.utils.data.random_split(
+                dataset,
+                [train_size, val_size],
+                generator=torch.Generator().manual_seed(SPLIT_SEED)
+            )
             train_idx, val_idx = train.indices, val.indices
     
             self.train_file_list = [dataset.imgs[i][0] for i in train_idx]

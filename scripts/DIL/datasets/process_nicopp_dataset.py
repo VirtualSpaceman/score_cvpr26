@@ -9,6 +9,7 @@ from torchvision import datasets
 # https://www.dropbox.com/scl/fo/ix8u21atdwrstmgjkz2rx/AP5fheclFPjfbBMbeHoqPow?rlkey=kcbecly7tetqu57v4tsmo095m&e=1&dl=0
 nico_folder = './NICOpp_track1'
 domains = ['autumn', 'dim', 'grass', 'outdoor', 'rock', 'water']
+SPLIT_SEED = 17
 
 def process_row(args):
     """Process a single row from the dataset."""
@@ -43,7 +44,11 @@ def process_split(domain):
     train_size = int(0.8 * len(dataset))
     val_size = len(dataset) - train_size
     
-    train, val = torch.utils.data.random_split(dataset, [train_size, val_size])
+    train, val = torch.utils.data.random_split(
+        dataset,
+        [train_size, val_size],
+        generator=torch.Generator().manual_seed(SPLIT_SEED)
+    )
     train_idx, val_idx = train.indices, val.indices
 
     train_file_list = [(dataset.imgs[i][0], 'train') for i in train_idx]
