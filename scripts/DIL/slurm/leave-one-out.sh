@@ -66,16 +66,12 @@ echo "Model: ${model}"
 echo "Dataset: ${dataset}"
 echo "Merge Function: ${merge_fn}"
 
-ALPHA=0.2
-BETA=2.0
 
 # Run the Python script with the parameters for this specific job
 python3 merge_domain_splitted_DIL.py \
     --model "${model}" \
     --merge-fn "${merge_fn}" \
     --dataset "${dataset}" \
-    --seed 5 \
-    --alpha $ALPHA \
-    --beta $BETA
+    --seed 5 
 
 echo "Job finished successfully."

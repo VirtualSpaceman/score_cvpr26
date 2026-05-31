@@ -10,37 +10,12 @@ from src.eval import eval_given_dataset, get_dataset
 from src.args import parse_arguments
 from src.datasets.registry import registry
 from src.constants import get_dict_dataset_paths, get_dict_epochs
-from src.merging.utils import get_merged_tv, compute_same_sign_score
+from src.merging.utils import get_merged_tv
 from src.merging.pcb import get_pcb_inference_weights
 
 # Config
 args = parse_arguments()
 pretrained_checkpoint = f'checkpoints/{args.model}/zeroshot.pt'
-
-
-
-
-def get_inter_range(merge_fn: str):
-    if merge_fn == 'pcb':
-        aug_range = np.linspace(0.8, 2.5, endpoint=True, num=18) # nlp / mtl 
-    elif merge_fn in ['ties', 'dare_ties']: 
-        aug_range = np.linspace(0.8, 1.8, endpoint=True, num=11) # Ties original -> NLP / MTL 
-    elif merge_fn in ['tsv']:   
-        aug_range = np.linspace(0.6, 1.5, endpoint=True, num=10) # paper fig 4
-    elif merge_fn in ['isoc']:
-        aug_range = np.linspace(0.1, 1.5, endpoint=True, num=15)
-    elif merge_fn in ['saliency']:
-        aug_range = np.linspace(0.1, 1.5, endpoint=True, num=15)
-    elif merge_fn in ['saliency_spectrum']:
-        aug_range = np.linspace(0.1, 1.5, endpoint=True, num=15)
-    elif merge_fn in ['saliency_precomp', 'randiso', 
-                      'saliency_ties', 'isoc_proj_es'] or merge_fn.startswith('isoc_changeb'):
-        aug_range = [1.0]
-    else:
-        aug_range = np.linspace(0.1, 1.0, endpoint=True, num=10) 
-
-    print(f"[{merge_fn=}] - Coefficient range: {aug_range}")
-    return aug_range
 
 
 
@@ -85,12 +60,8 @@ if __name__ == '__main__':
     results_dict[first_key] = dict()
     # merge_fn -> dataset -> domains -> -> acc
 
-    # Get scaling factors 
-    # scaling_factors = get_inter_range(args.merge_fn)
+    # Get the scaling factor 
     scaling_factors = [1.0]
-    if args.debug:
-        scaling_factors = [1.0]
-
 
     for target_idx, target_domain in enumerate(all_domains): 
         # leave the target domain out and marge the remaining 
@@ -103,38 +74,12 @@ if __name__ == '__main__':
         }
         tvs_to_merge = [tv for (idx, tv) in enumerate(task_vectors) if idx != target_idx]
  
-        # precompute alpha if need
-        # if args.compute_alpha:
-        if args.merge_fn in ['saliency_precomp',
-                             'saliency_ties',
-                             ] or args.merge_fn.startswith('ties_sigma'): 
-            # print(f"precomputing alpha based on task vector similarites...")
-            # cos_sim = compute_sim(copy.deepcopy(tvs_to_merge)) # returns a np.array 
-            # # set main diag to zero because it is always 1.0
-            # cos_sim -= np.eye(len(tvs_to_merge))
-            # ref_value = cos_sim.max()
-
-            print(f"precomputing alpha based on sign agreements...")
-            ref_value = compute_same_sign_score(copy.deepcopy(tvs_to_merge))
-
-            # then take the maximum value 
-            # MULT = 1.5 # 1.5 eh ok for the rest 
-            MULT = 1.0 # 1.0 for spec tries  
-            selected_alpha = np.round(MULT*ref_value, 3) # -> usava ,2 
-            selected_alpha = max(selected_alpha, 0.03)
-
-            print(f"Setting alpha to {selected_alpha=} -> {MULT}*Ref value: ")
-            args.alpha = selected_alpha
-
 
         merged_tv = get_merged_tv(copy.deepcopy(tvs_to_merge), 
                                       args)
 
-        # if args.debug:
-        #     exit(0)
         # Iterate over all scaling factors
         for scaling_factor in scaling_factors:
-
 
             scaling_factor = np.round(scaling_factor, 2)
             # Adjust the vector according the scaling factor 
@@ -162,8 +107,6 @@ if __name__ == '__main__':
             results_dict[first_key][domain_str][f"acc_{scaling_factor}"] = r
 
         
-        # if args.debug:
-        #     break 
     
     # flat_list = list(results_dict.values())
     # avg_top1_results = np.round(np.mean([x['top1'] for x in flat_list]).item(), 3).item() * 100
